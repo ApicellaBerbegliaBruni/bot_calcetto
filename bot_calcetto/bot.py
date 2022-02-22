@@ -45,7 +45,7 @@ def matches(update: Update, context: CallbackContext):
 
         for i, match in enumerate(current_matches):
             update.message.reply_text(
-                f"Partita {i + 1}:\n"
+                f'Partita {i + 1}:\n'
                 f'Organizzatore: @{match["manager"]}\n'
                 f'Giocatori: {match["players"]}\n'
                 f'Data: {match.get("date", "Da definire")}\n'
@@ -56,6 +56,7 @@ def matches(update: Update, context: CallbackContext):
 
 
 def button(update: Update, context: CallbackContext) -> None:
+
     query = update.callback_query
 
     query.answer()
@@ -79,13 +80,62 @@ def button(update: Update, context: CallbackContext) -> None:
             )
 
 
+def delete_match(update: Update, context: CallbackContext):
+    '''
+    update.message.reply_text(
+        'provaprova'
+    )
+    '''
+    keyboard = [[]]
+
+    chat_data = context.chat_data
+
+    # take current user
+    current_user = update.message.from_user['username']
+
+    if chat_data is not None:
+        current_matches = chat_data.get("current_matches", [])
+        for match in current_matches:
+            if match['manager'] == current_user:
+                print(match.get("date"))
+                keyboard[0].append(InlineKeyboardButton(
+                    'Partita',
+                    callback_data='{"players": match["players"],"manager": match["manager"]}',
+                ))
+
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        update.message.reply_text(
+            "Quale partita vuoi eliminare?", reply_markup=reply_markup
+        )
+    else:
+        update.message.reply_text(
+            'provaprova'
+        )
+
+
+def button_delete(update: Update, context: CallbackContext):
+    update.message.reply_text(
+        "Risposta"
+    )
+
+
 if __name__ == "__main__":
+
+    # Create the Updater and pass it your bot's token.
     updater = Updater(token=os.getenv("BOT_TOKEN"))
+
+    # Get the dispatcher to register handlers
     dispatcher: Dispatcher = updater.dispatcher
 
+    # on different commands - answer in Telegram
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CallbackQueryHandler(button))
     dispatcher.add_handler(CommandHandler("partite", matches))
+    dispatcher.add_handler(CommandHandler("cancella_partita", delete_match))
+    dispatcher.add_handler(CallbackQueryHandler(button_delete))
 
+
+    # Start the Bot
     updater.start_polling()
+    # Block until you press Ctrl-C
     updater.idle()

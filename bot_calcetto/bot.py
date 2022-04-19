@@ -131,6 +131,7 @@ if __name__ == "__main__":
     dispatcher.add_handler(CommandHandler("partite", matches))
     dispatcher.add_handler(CommandHandler("cancella_partita", delete_match))
     dispatcher.add_handler(CallbackQueryHandler(button_delete))
+    print("prova")
 
     # Start the Bot
     updater.start_webhook(

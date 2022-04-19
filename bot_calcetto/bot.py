@@ -10,6 +10,7 @@ from telegram.ext import (
 )
 
 import env
+import logging
 
 
 def start(update: Update, context: CallbackContext):
@@ -119,6 +120,13 @@ def button_delete(update: Update, context: CallbackContext):
 
 
 if __name__ == "__main__":
+
+    # Enable logging
+    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                        level=logging.INFO)
+
+    logger = logging.getLogger(__name__)
+
     # Create the Updater and pass it your bot's token.
     updater = Updater(token=env.BOT_TOKEN)
 
@@ -131,7 +139,6 @@ if __name__ == "__main__":
     dispatcher.add_handler(CommandHandler("partite", matches))
     dispatcher.add_handler(CommandHandler("cancella_partita", delete_match))
     dispatcher.add_handler(CallbackQueryHandler(button_delete))
-    print("prova")
 
     # Start the Bot
     updater.start_webhook(

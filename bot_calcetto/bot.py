@@ -57,31 +57,6 @@ def matches(update: Update, context: CallbackContext):
             )
 
 
-def button(update: Update, context: CallbackContext) -> None:
-
-    query = update.callback_query
-
-    query.answer()
-
-    query_data = json.loads(query.data)
-
-    if "new_match_players" in query_data:
-        players = query_data["new_match_players"]
-
-        chat_data = context.chat_data
-        if chat_data is not None:
-            new_match = {
-                "players": players,
-                "manager": query.from_user.username,
-            }
-            current_matches = chat_data.get("current_matches", [])
-            chat_data["current_matches"] = current_matches + [new_match]
-
-            query.edit_message_text(
-                text=f"Creata partita da {players} giocatori!"
-            )
-
-
 def delete_match(update: Update, context: CallbackContext):
     """
     update.message.reply_text(
@@ -99,11 +74,13 @@ def delete_match(update: Update, context: CallbackContext):
         current_matches = chat_data.get("current_matches", [])
         for match in current_matches:
             if match["manager"] == current_user:
-                print(match.get("date"))
                 keyboard[0].append(
                     InlineKeyboardButton(
+                        # print date of the match
+                        #"Partita_"+match["date"],
+                        #callback_data='{"delete_match": match["date"], "players": match["players"],"manager": match["manager"]}',
                         "Partita",
-                        callback_data='{"players": match["players"],"manager": match["manager"]}',
+                        callback_data='{"delete_match": "prova", "players": "'+match["players"]+'", "manager": "' + match["manager"]+'"}',
                     )
                 )
 
@@ -112,12 +89,43 @@ def delete_match(update: Update, context: CallbackContext):
             "Quale partita vuoi eliminare?", reply_markup=reply_markup
         )
     else:
-        update.message.reply_text("provaprova")
+        update.message.reply_text("Non ci sono partite che puoi cancellare")
 
+    def button(update: Update, context: CallbackContext) -> None:
 
-def button_delete(update: Update, context: CallbackContext):
-    update.message.reply_text("Risposta")
+        query = update.callback_query
 
+        query.answer()
+
+        query_data = json.loads(query.data)
+
+        if "new_match_players" in query_data:
+            players = query_data["new_match_players"]
+
+            chat_data = context.chat_data
+            if chat_data is not None:
+                new_match = {
+                    "players": players,
+                    "manager": query.from_user.username,
+                }
+                current_matches = chat_data.get("current_matches", [])
+                chat_data["current_matches"] = current_matches + [new_match]
+
+                query.edit_message_text(
+                    text=f"Creata partita da {players} giocatori!"
+                )
+        if "delete_match" in query_data:
+            chat_data = context.chat_data
+            current_matches = chat_data.get("current_matches", [])
+            for match in current_matches:
+                # if match["manager"] == query_data["manager"] and match["players"] == query_data["players"]
+                # and match["date"] == query_data["manager"]:
+                if match["manager"] == query_data["manager"] and match["players"] == query_data["players"]:
+                    chat_data["current_matches"] = current_matches.remove(match)
+                    break
+            query.edit_message_text(
+                text=f"Partita eliminata."
+            )
 
 if __name__ == "__main__":
 

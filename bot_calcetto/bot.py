@@ -127,6 +127,11 @@ if __name__ == "__main__":
 
     logger = logging.getLogger(__name__)
 
+    # Start mode:
+    # heroku start on Heroku Server
+    # in other case start local
+    mode = 'local'
+
     # Create the Updater and pass it your bot's token.
     updater = Updater(token=env.BOT_TOKEN)
 
@@ -140,12 +145,16 @@ if __name__ == "__main__":
     dispatcher.add_handler(CommandHandler("cancella_partita", delete_match))
     dispatcher.add_handler(CallbackQueryHandler(button_delete))
 
-    # Start the Bot
-    updater.start_webhook(
-        listen="0.0.0.0",
-        port=int(env.PORT),
-        url_path=env.BOT_TOKEN,
-        webhook_url=f"https://{env.APP_NAME}.herokuapp.com/{env.BOT_TOKEN}",
-    )
+    if mode == 'heroku':
+        # Start the Bot
+        updater.start_webhook(
+            listen="0.0.0.0",
+            port=int(env.PORT),
+            url_path=env.BOT_TOKEN,
+            webhook_url=f"https://{env.APP_NAME}.herokuapp.com/{env.BOT_TOKEN}",
+        )
+    else:
+        updater.start_polling()
+
     # Block until you press Ctrl-C
     updater.idle()
